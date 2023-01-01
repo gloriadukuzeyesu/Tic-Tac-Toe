@@ -2,6 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class TicTacToe extends JPanel implements ActionListener {
     // logical variable
@@ -36,7 +38,8 @@ public class TicTacToe extends JPanel implements ActionListener {
         setMaximumSize(size);
         jButton = new JButton("Play Again?");
         jButton.addActionListener(this);
-//        jButton.setVisible(false);
+        jButton.setVisible(false);
+        addMouseListener(new XOListener() );
     }
 
     public static void main (String[] arg) {
@@ -61,9 +64,11 @@ public class TicTacToe extends JPanel implements ActionListener {
     public JButton getJButton() {
         return jButton;
     }
+
     public void setPlayer1wins (int a) {
         player1wins = a;
     }
+
     public void setPlayer2wins (int a) {
         player2wins = a;
     }
@@ -82,7 +87,6 @@ public class TicTacToe extends JPanel implements ActionListener {
     }
 
     // focus on the graphics
-
     public void paintComponent(Graphics page) {
         super.paintComponent(page);
         drawBoard(page);
@@ -90,11 +94,22 @@ public class TicTacToe extends JPanel implements ActionListener {
         drawGame(page);
     }
 
+    private void drawBoard(Graphics page) {
+        setBackground(turtle);
+        page.setColor(darkGray);
+        page.fillRoundRect(x, y, lineLength, lineWidth, 5,30); // 5  and 30 are the line radius
+        page.fillRoundRect(x, y + offSet, lineLength, lineWidth, 5,30);
+        page.fillRoundRect(y, x, lineWidth, lineLength, 30,5);
+        page.fillRoundRect(y + offSet, x, lineWidth, lineLength, 30, 5);
+    }
+
     private void drawGame(Graphics page) {
+        board[0][0] = 2;
+        board[0][1] = 1;
         // to draw image we use a nested for loop
         for(int i = 0; i < 3; i++) {
             for ( int j = 0; j < 3; j++) {
-                if( board[i][j] == 0) {
+                if(board[i][j] == 0) {
                     // do nothing
                 } else if (board[i][j] == 1) {
                     ImageIcon xIcon = new ImageIcon("orange.png");
@@ -104,8 +119,7 @@ public class TicTacToe extends JPanel implements ActionListener {
                     page.setColor(offWhite);
                     page.fillOval(30 + offSet * i, 30 + offSet * j, 50, 50);
                     page.setColor(turtle);
-                    page.fillOval(340 + offSet * i, 40 + offSet * j, 30, 30);
-
+                    page.fillOval(40 + offSet * i, 40 + offSet * j, 30, 30);
                 }
             }
         }
@@ -121,21 +135,21 @@ public class TicTacToe extends JPanel implements ActionListener {
         //SET WIN COUNTER
         page.setColor(offWhite);
         page.drawString("Win Count", 310, 30);
-        page.drawString(": " + player1wins, 360, 70);
-        page.drawString(": " + player2wins, 360, 105);
+        page.drawString(": " + player1wins, 362, 70);
+        page.drawString(": " + player2wins, 362, 105);
 
         // DRAW SCORE X
         ImageIcon xIcon = new ImageIcon("orange.png");
         Image xImage = xIcon.getImage();
         Image newXImage = xImage.getScaledInstance(25,25, Image.SCALE_SMOOTH);
         ImageIcon newXIcon = new ImageIcon(newXImage);
-        page.drawImage(newXIcon.getImage(), 329, 47, null);
+        page.drawImage(newXIcon.getImage(), 44 + offSet + 190, 47, null);
 
         // DRAW SCORE O
         page.setColor(offWhite);
-        page.fillOval(233 + offSet, 80, 30, 30);
+        page.fillOval(43 + 190 + offSet, 80, 30, 30);
         page.setColor(darkGray);
-        page.fillOval(250 + offSet,85,20,20);
+        page.fillOval(49 + 190 + offSet,85,20,20);
 
         // DRAW WHO IS TURN OR WINNER
         page.setColor(offWhite);
@@ -143,20 +157,18 @@ public class TicTacToe extends JPanel implements ActionListener {
         page.setFont(font1);
 
         // GAME LOGIC TO SHOW THE WINNER OR A TIE
-
         if(gameDone) {
             //display the winner
-            if(winner == 1) {
+            if(winner == 1) { // x
                 page.drawString("The winner is", 310, 150);
                 page.drawImage(xImage, 335, 160,null);
-            }else if(winner == 2) {
+            }else if(winner == 2) { // o
                 page.drawString("The winner is", 310, 150);
                 page.setColor(offWhite);
-                page.fillOval(335, 160,50,50);
+                page.fillOval(332, 160,50,50);
                 page.setColor(darkGray);
-                page.fillOval(345,160, 30,30);
-            }else if (winner == 3) {
-                // tie
+                page.fillOval(345,170, 30,30);
+            }else if (winner == 3) { // tie
                 page.drawString("It is a tie", 330, 178);
             }
         } else{
@@ -174,18 +186,143 @@ public class TicTacToe extends JPanel implements ActionListener {
         // DRAW LOGO
         Image cookie = Toolkit.getDefaultToolkit().getImage("cookie.png");
         page.drawImage(cookie, 345, 235, 30, 30, this);
-        Font c = new Font ("Courier", Font.BOLD+Font.ITALIC, 13);
+        Font c = new Font ("Courier", Font.ITALIC, 13);
         page.setFont(c);
         page.drawString("Just One Byte", 310, 280);
     }
 
-    private void drawBoard(Graphics page) {
-        setBackground(turtle);
-        page.setColor(darkGray);
-        page.fillRoundRect(x, y, lineLength, lineWidth, 5,30); // 5  and 30 are the line radius
-        page.fillRoundRect(x, y + offSet, lineLength, lineWidth, 5,30);
-        page.fillRoundRect(y, x, lineWidth, lineLength, 30,5);
-        page.fillRoundRect(y + offSet, x, lineWidth, lineLength, 30, 5);
+    public class XOListener implements MouseListener{
+
+        @Override
+        public void mouseClicked(MouseEvent event) {
+            mouseX = -1;
+            mouseY = -1;
+            if(!gameDone) {
+                a = event.getX();
+                b = event.getY();
+                System.out.println("CLicked => x: " + a + ", y: " + b);
+                if( a > 12 && a < 99) {
+                    mouseX = 0;
+                }else if ( a > 103 && a < 287) {
+                    mouseX = 2;
+                }else {
+                    mouseX = -1;
+                }
+
+                if( b > 12 && b < 99) {
+                    mouseY = 0;
+                }else if (b > 200 && b < 287) {
+                    mouseY = 2;
+                }else{
+                    mouseY = 1;
+                }
+
+                // draw x or 0 and switch the player
+                if(mouseX != -1 && mouseY != 1) {
+                    // open spot to play
+                    if(board[mouseX][mouseY] == 0) {
+                        if(playerX) {
+                            board[mouseX][mouseY] = 1;
+                            playerX = false;
+                        }else{
+                            board[mouseX][mouseY] = 2;
+                            playerX = true;
+                        }
+                        System.out.println("CLicked => x: " + a + ", y: " + b +
+                                "board:( " + x + ", "+ y + " )");
+                        checkWinner();
+                    }
+                }else {
+                    System.out.println("invalid click");
+                }
+            }
+        }
+
+        private void checkWinner() {
+            if(gameDone) {
+                System.out.println("Game is Over");
+                return;
+            }
+            // vertical
+            int temp = -1;
+            if((board[0][0] == board[0][1])
+                    && (board[0][1] == board[0][2])
+                    && (board[0][0] != 0)) {
+                temp = board[0][0];
+            } else if((board[1][0] == board[1][1])
+                    && (board[1][1] == board[1][2])
+                    && (board[1][0] != 0)) {
+                temp = board[1][1];
+            } else if((board[2][0] == board[2][1])
+                    && (board[2][1] == board[2][2])
+                    && (board[2][0] != 0)) {
+                temp = board[2][1];
+
+                // horizontal
+            } else if((board[0][0] == board[1][0])
+                    && (board[1][0] == board[2][0])
+                    && (board[0][0] != 0)) {
+                temp = board[0][0];
+            } else if((board[0][1] == board[1][1])
+                    && (board[1][1] == board[2][1])
+                    && (board[0][2] != 0)) {
+                temp = board[0][2];
+
+                // diagonal
+            } else if ((board[0][0] == board[1][1])
+                    && (board[1][1] == board[2][2])
+                    && (board[0][0] != 0)) {
+                temp = board[0][2];
+            } else {
+                // check for a tie
+                boolean notDone = false;
+                for ( int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        if(board[i][j] == 0) {
+                            notDone = true;
+                            break;
+                        }
+                    }
+                }
+                if(!notDone) {
+                    temp = 3;
+                }
+            }
+            if(temp > 0) {
+                winner = temp;
+                if(winner == 1) {
+                    player1wins++;
+                    System.out.println("Winner is X");
+                } else if(winner == 2) {
+                    player2wins++;
+                    System.out.println("winner is O");
+                } else if (winner == 3) {
+                    System.out.println("It is a tie");
+                }
+                gameDone = true;
+                getJButton().setVisible(true);
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
+        }
     }
 
 }
