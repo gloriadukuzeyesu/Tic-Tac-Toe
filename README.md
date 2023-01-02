@@ -18,4 +18,4 @@ How to play the game
 
   For example: X wins here. 
 
-  ![Screen Shot 2023-01-02 at 12.11.22 AM](README/X%20wins.png)
+  <img src="README/X%20wins.png" alt="Screen Shot 2023-01-02 at 12.11.22 AM" style="zoom:40%;" />
