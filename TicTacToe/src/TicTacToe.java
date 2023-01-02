@@ -38,11 +38,12 @@ public class TicTacToe extends JPanel implements ActionListener {
         setMaximumSize(size);
         jButton = new JButton("Play Again?");
         jButton.addActionListener(this);
+        add(jButton);
         jButton.setVisible(false);
         addMouseListener(new XOListener() );
     }
 
-    public static void main (String[] arg) {
+     public static void main (String[] arg) {
         JFrame frame = new JFrame("Tic Tac Toe");
         frame.getContentPane();
 
@@ -104,8 +105,8 @@ public class TicTacToe extends JPanel implements ActionListener {
     }
 
     private void drawGame(Graphics page) {
-        board[0][0] = 2;
-        board[0][1] = 1;
+//        board[0][0] = 2;
+//        board[0][1] = 1;
         // to draw image we use a nested for loop
         for(int i = 0; i < 3; i++) {
             for ( int j = 0; j < 3; j++) {
@@ -191,7 +192,73 @@ public class TicTacToe extends JPanel implements ActionListener {
         page.drawString("Just One Byte", 310, 280);
     }
 
-    public class XOListener implements MouseListener{
+    private void checkWinner() {
+        if(gameDone) {
+            System.out.println("Game is Over");
+            return;
+        }
+        // vertical
+        int temp = -1;
+        if((board[0][0] == board[0][1])
+                && (board[0][1] == board[0][2])
+                && (board[0][0] != 0)) {
+            temp = board[0][0];
+        } else if((board[1][0] == board[1][1])
+                && (board[1][1] == board[1][2])
+                && (board[1][0] != 0)) {
+            temp = board[1][1];
+        } else if((board[2][0] == board[2][1])
+                && (board[2][1] == board[2][2])
+                && (board[2][0] != 0)) {
+            temp = board[2][1];
+
+            // horizontal
+        } else if((board[0][0] == board[1][0])
+                && (board[1][0] == board[2][0])
+                && (board[0][0] != 0)) {
+            temp = board[0][0];
+        } else if((board[0][1] == board[1][1])
+                && (board[1][1] == board[2][1])
+                && (board[0][2] != 0)) {
+            temp = board[0][2];
+
+            // diagonal
+        } else if ((board[0][0] == board[1][1])
+                && (board[1][1] == board[2][2])
+                && (board[0][0] != 0)) {
+            temp = board[0][2];
+        } else {
+            // check for a tie
+            boolean notDone = false;
+            for ( int i = 0; i < 3; i++) {
+                for (int j = 0; j < 3; j++) {
+                    if(board[i][j] == 0) {
+                        notDone = true;
+                        break;
+                    }
+                }
+            }
+            if(!notDone) {
+                temp = 3;
+            }
+        }
+        if(temp > 0) {
+            winner = temp;
+            if(winner == 1) {
+                player1wins++;
+                System.out.println("Winner is X");
+            } else if(winner == 2) {
+                player2wins++;
+                System.out.println("winner is O");
+            } else if (winner == 3) {
+                System.out.println("It is a tie");
+            }
+            gameDone = true;
+            getJButton().setVisible(true);
+        }
+    }
+
+    private class XOListener implements MouseListener{
 
         @Override
         public void mouseClicked(MouseEvent event) {
@@ -201,24 +268,29 @@ public class TicTacToe extends JPanel implements ActionListener {
                 a = event.getX();
                 b = event.getY();
                 System.out.println("CLicked => x: " + a + ", y: " + b);
+
                 if( a > 12 && a < 99) {
                     mouseX = 0;
-                }else if ( a > 103 && a < 287) {
+                }else if ( a > 103 && a < 195) {
+                    mouseX = 1;
+                }else if(a > 200 && a < 287) {
                     mouseX = 2;
-                }else {
+                } else{
                     mouseX = -1;
                 }
 
                 if( b > 12 && b < 99) {
                     mouseY = 0;
-                }else if (b > 200 && b < 287) {
-                    mouseY = 2;
-                }else{
+                }else if (b > 103 && b < 195) {
                     mouseY = 1;
+                }else if(b > 200 && b < 287) {
+                    mouseY = 2;
+                } else{
+                    mouseY = -1;
                 }
 
                 // draw x or 0 and switch the player
-                if(mouseX != -1 && mouseY != 1) {
+                if(mouseX != -1 && mouseY != -1) {
                     // open spot to play
                     if(board[mouseX][mouseY] == 0) {
                         if(playerX) {
@@ -228,79 +300,13 @@ public class TicTacToe extends JPanel implements ActionListener {
                             board[mouseX][mouseY] = 2;
                             playerX = true;
                         }
-                        System.out.println("CLicked => x: " + a + ", y: " + b +
-                                "board:( " + x + ", "+ y + " )");
                         checkWinner();
+                        System.out.println("CLicked => x: " + a + ", y: " + b +
+                                " board:( " + x + ", "+ y + " )");
                     }
                 }else {
                     System.out.println("invalid click");
                 }
-            }
-        }
-
-        private void checkWinner() {
-            if(gameDone) {
-                System.out.println("Game is Over");
-                return;
-            }
-            // vertical
-            int temp = -1;
-            if((board[0][0] == board[0][1])
-                    && (board[0][1] == board[0][2])
-                    && (board[0][0] != 0)) {
-                temp = board[0][0];
-            } else if((board[1][0] == board[1][1])
-                    && (board[1][1] == board[1][2])
-                    && (board[1][0] != 0)) {
-                temp = board[1][1];
-            } else if((board[2][0] == board[2][1])
-                    && (board[2][1] == board[2][2])
-                    && (board[2][0] != 0)) {
-                temp = board[2][1];
-
-                // horizontal
-            } else if((board[0][0] == board[1][0])
-                    && (board[1][0] == board[2][0])
-                    && (board[0][0] != 0)) {
-                temp = board[0][0];
-            } else if((board[0][1] == board[1][1])
-                    && (board[1][1] == board[2][1])
-                    && (board[0][2] != 0)) {
-                temp = board[0][2];
-
-                // diagonal
-            } else if ((board[0][0] == board[1][1])
-                    && (board[1][1] == board[2][2])
-                    && (board[0][0] != 0)) {
-                temp = board[0][2];
-            } else {
-                // check for a tie
-                boolean notDone = false;
-                for ( int i = 0; i < 3; i++) {
-                    for (int j = 0; j < 3; j++) {
-                        if(board[i][j] == 0) {
-                            notDone = true;
-                            break;
-                        }
-                    }
-                }
-                if(!notDone) {
-                    temp = 3;
-                }
-            }
-            if(temp > 0) {
-                winner = temp;
-                if(winner == 1) {
-                    player1wins++;
-                    System.out.println("Winner is X");
-                } else if(winner == 2) {
-                    player2wins++;
-                    System.out.println("winner is O");
-                } else if (winner == 3) {
-                    System.out.println("It is a tie");
-                }
-                gameDone = true;
-                getJButton().setVisible(true);
             }
         }
 
