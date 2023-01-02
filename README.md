@@ -19,3 +19,7 @@ How to play the game
   For example: X wins here. 
 
   <img src="README/X%20wins.png" alt="Screen Shot 2023-01-02 at 12.11.22 AM" style="zoom:40%;" />
+
+
+
+Credits: GeeksForGeeks
